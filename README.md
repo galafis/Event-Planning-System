@@ -1,283 +1,219 @@
-# 🚀 Event Planning System
+# Event Planning System
 
-> Professional project by Gabriel Demetrios Lafis
-
-[![Python](https://img.shields.io/badge/Python-3.12-3776AB.svg)](https://img.shields.io/badge/)
-[![Docker](https://img.shields.io/badge/Docker-Ready-2496ED.svg)](https://img.shields.io/badge/)
-[![Flask](https://img.shields.io/badge/Flask-3.0-000000.svg)](https://img.shields.io/badge/)
-[![SQLAlchemy](https://img.shields.io/badge/SQLAlchemy-2.0-D71F00.svg)](https://img.shields.io/badge/)
+[![Python](https://img.shields.io/badge/Python-3.12-3776AB.svg)](https://www.python.org/)
+[![Flask](https://img.shields.io/badge/Flask-3.1-000000.svg)](https://flask.palletsprojects.com/)
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-[English](#english) | [Português](#português)
+[Portugues](#portugues) | [English](#english)
+
+---
+
+## Portugues
+
+### Visao Geral
+
+API REST para planejamento de eventos construida com Flask. Oferece CRUD completo para eventos, fornecedores, convidados e tarefas, com dados de exemplo incluidos para demonstracao.
+
+**Nota:** Os dados sao armazenados em memoria. Todos os dados sao perdidos ao reiniciar o servidor.
+
+### Arquitetura
+
+```mermaid
+graph LR
+    Client["Cliente HTTP"] --> Flask["Flask API (src/main.py)"]
+    Flask --> Storage["Armazenamento em Memoria"]
+    Storage --> Events["Eventos"]
+    Storage --> Vendors["Fornecedores"]
+    Storage --> Guests["Convidados"]
+    Storage --> Tasks["Tarefas"]
+```
+
+### Funcionalidades
+
+- CRUD de eventos (titulo, data, local, orcamento, status)
+- CRUD de fornecedores com filtro por categoria
+- CRUD de convidados com filtro por evento
+- Tarefas vinculadas a eventos
+- Dashboard com estatisticas (total de eventos, convidados, orcamento)
+- Dados de exemplo pre-carregados
+
+### Inicio Rapido
+
+```bash
+# Clonar o repositorio
+git clone https://github.com/galafis/Event-Planning-System.git
+cd Event-Planning-System
+
+# Criar ambiente virtual
+python -m venv venv
+source venv/bin/activate  # Windows: venv\Scripts\activate
+
+# Instalar dependencias
+pip install -r requirements.txt
+
+# Executar a aplicacao
+python src/main.py
+```
+
+O servidor inicia em `http://localhost:5000`.
+
+### Endpoints da API
+
+| Metodo | Rota | Descricao |
+|--------|------|-----------|
+| GET | `/api/events` | Listar eventos |
+| POST | `/api/events` | Criar evento |
+| GET | `/api/events/<id>` | Obter evento |
+| PUT | `/api/events/<id>` | Atualizar evento |
+| DELETE | `/api/events/<id>` | Remover evento |
+| GET | `/api/vendors` | Listar fornecedores |
+| POST | `/api/vendors` | Criar fornecedor |
+| GET | `/api/guests` | Listar convidados |
+| POST | `/api/guests` | Criar convidado |
+| PUT | `/api/guests/<id>` | Atualizar convidado |
+| POST | `/api/events/<id>/tasks` | Adicionar tarefa |
+| PUT | `/api/events/<id>/tasks/<id>` | Atualizar tarefa |
+| GET | `/api/dashboard/stats` | Estatisticas do dashboard |
+
+### Estrutura do Projeto
+
+```
+Event-Planning-System/
+├── src/
+│   ├── main.py           # Aplicacao Flask e rotas da API
+│   ├── templates/
+│   │   └── index.html    # Dashboard web
+│   └── __init__.py
+├── tests/
+│   ├── test_main.py      # Testes com Flask test_client
+│   └── __init__.py
+├── Dockerfile
+├── requirements.txt
+├── LICENSE
+└── README.md
+```
+
+### Testes
+
+```bash
+pytest tests/ -v
+```
+
+### Docker
+
+```bash
+docker build -t event-planning-system .
+docker run -p 5000:5000 event-planning-system
+```
 
 ---
 
 ## English
 
-### 🎯 Overview
+### Overview
 
-**Event Planning System** is a production-grade Python application complemented by CSS, HTML, JavaScript, R that showcases modern software engineering practices including clean architecture, comprehensive testing, containerized deployment, and CI/CD readiness.
+REST API for event planning built with Flask. Provides full CRUD for events, vendors, guests, and tasks, with sample data included for demonstration.
 
-The codebase comprises **1,070 lines** of source code organized across **9 modules**, following industry best practices for maintainability, scalability, and code quality.
+**Note:** Data is stored in memory. All data is lost when the server restarts.
 
-### ✨ Key Features
-
-- **🐳 Containerized**: Docker support for consistent deployment
-- **🏗️ Object-Oriented**: 2 core classes with clean architecture
-- **📐 Clean Architecture**: Modular design with clear separation of concerns
-- **🧪 Test Coverage**: Unit and integration tests for reliability
-- **📚 Documentation**: Comprehensive inline documentation and examples
-- **🔧 Configuration**: Environment-based configuration management
-
-### 🏗️ Architecture
+### Architecture
 
 ```mermaid
-graph TB
-    subgraph Client["🖥️ Client Layer"]
-        A[Web Client]
-        B[API Documentation]
-    end
-    
-    subgraph API["⚡ API Layer"]
-        C[Middleware Pipeline]
-        D[Route Handlers]
-        E[Business Logic]
-    end
-    
-    subgraph Data["💾 Data Layer"]
-        F[(Primary Database)]
-        G[Cache]
-    end
-    
-    A --> C
-    B --> C
-    C --> D --> E
-    E --> F
-    E --> G
-    
-    style Client fill:#e1f5fe
-    style API fill:#f3e5f5
-    style Data fill:#fff3e0
+graph LR
+    Client["HTTP Client"] --> Flask["Flask API (src/main.py)"]
+    Flask --> Storage["In-Memory Storage"]
+    Storage --> Events["Events"]
+    Storage --> Vendors["Vendors"]
+    Storage --> Guests["Guests"]
+    Storage --> Tasks["Tasks"]
 ```
 
-```mermaid
-classDiagram
-    class ApplicationManager
-    class User
-    ApplicationManager --> ApplicationManager : uses
-    ApplicationManager --> User : uses
-```
+### Features
 
-### 🚀 Quick Start
+- Event CRUD (title, date, venue, budget, status)
+- Vendor CRUD with category filtering
+- Guest CRUD with event filtering
+- Tasks linked to events
+- Dashboard with statistics (total events, guests, budget)
+- Pre-loaded sample data
 
-#### Prerequisites
-
-- Python 3.12+
-- pip (Python package manager)
-
-#### Installation
+### Quick Start
 
 ```bash
 # Clone the repository
 git clone https://github.com/galafis/Event-Planning-System.git
 cd Event-Planning-System
 
-# Create and activate virtual environment
+# Create virtual environment
 python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
+source venv/bin/activate  # Windows: venv\Scripts\activate
 
 # Install dependencies
 pip install -r requirements.txt
-```
 
-#### Running
-
-```bash
 # Run the application
 python src/main.py
 ```
 
-### 📁 Project Structure
+The server starts at `http://localhost:5000`.
+
+### API Endpoints
+
+| Method | Route | Description |
+|--------|-------|-------------|
+| GET | `/api/events` | List events |
+| POST | `/api/events` | Create event |
+| GET | `/api/events/<id>` | Get event |
+| PUT | `/api/events/<id>` | Update event |
+| DELETE | `/api/events/<id>` | Delete event |
+| GET | `/api/vendors` | List vendors |
+| POST | `/api/vendors` | Create vendor |
+| GET | `/api/guests` | List guests |
+| POST | `/api/guests` | Create guest |
+| PUT | `/api/guests/<id>` | Update guest |
+| POST | `/api/events/<id>/tasks` | Add task |
+| PUT | `/api/events/<id>/tasks/<id>` | Update task |
+| GET | `/api/dashboard/stats` | Dashboard statistics |
+
+### Project Structure
 
 ```
 Event-Planning-System/
-├── src/          # Source code
-│   ├── models/        # Data models
-│   │   └── user.py
-│   ├── routes/
-│   │   └── user.py
-│   ├── static/
-│   ├── __init__.py
-│   └── main.py
-├── tests/         # Test suite
-│   ├── __init__.py
-│   └── test_main.py
+├── src/
+│   ├── main.py           # Flask app and API routes
+│   ├── templates/
+│   │   └── index.html    # Web dashboard
+│   └── __init__.py
+├── tests/
+│   ├── test_main.py      # Tests with Flask test_client
+│   └── __init__.py
 ├── Dockerfile
+├── requirements.txt
 ├── LICENSE
-├── README.md
-├── analytics.R
-├── app.js
-└── requirements.txt
+└── README.md
 ```
 
-### 🛠️ Tech Stack
+### Tests
 
-| Technology | Description | Role |
-|------------|-------------|------|
-| **Python** | Core Language | Primary |
-| **Docker** | Containerization platform | Framework |
-| **Flask** | Lightweight web framework | Framework |
-| **SQLAlchemy** | SQL toolkit and ORM | Framework |
-| HTML | 2 files | Supporting |
-| R | 1 files | Supporting |
-| JavaScript | 1 files | Supporting |
-| CSS | 1 files | Supporting |
+```bash
+pytest tests/ -v
+```
 
-### 🤝 Contributing
+### Docker
 
-Contributions are welcome! Please feel free to submit a Pull Request. For major changes, please open an issue first to discuss what you would like to change.
-
-1. Fork the project
-2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
-
-### 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-### 👤 Author
-
-**Gabriel Demetrios Lafis**
-- GitHub: [@galafis](https://github.com/galafis)
-- LinkedIn: [Gabriel Demetrios Lafis](https://linkedin.com/in/gabriel-demetrios-lafis)
+```bash
+docker build -t event-planning-system .
+docker run -p 5000:5000 event-planning-system
+```
 
 ---
 
-## Português
-
-### 🎯 Visão Geral
-
-**Event Planning System** é uma aplicação Python de nível profissional, complementada por CSS, HTML, JavaScript, R que demonstra práticas modernas de engenharia de software, incluindo arquitetura limpa, testes abrangentes, implantação containerizada e prontidão para CI/CD.
-
-A base de código compreende **1,070 linhas** de código-fonte organizadas em **9 módulos**, seguindo as melhores práticas do setor para manutenibilidade, escalabilidade e qualidade de código.
-
-### ✨ Funcionalidades Principais
-
-- **🐳 Containerized**: Docker support for consistent deployment
-- **🏗️ Object-Oriented**: 2 core classes with clean architecture
-- **📐 Clean Architecture**: Modular design with clear separation of concerns
-- **🧪 Test Coverage**: Unit and integration tests for reliability
-- **📚 Documentation**: Comprehensive inline documentation and examples
-- **🔧 Configuration**: Environment-based configuration management
-
-### 🏗️ Arquitetura
-
-```mermaid
-graph TB
-    subgraph Client["🖥️ Client Layer"]
-        A[Web Client]
-        B[API Documentation]
-    end
-    
-    subgraph API["⚡ API Layer"]
-        C[Middleware Pipeline]
-        D[Route Handlers]
-        E[Business Logic]
-    end
-    
-    subgraph Data["💾 Data Layer"]
-        F[(Primary Database)]
-        G[Cache]
-    end
-    
-    A --> C
-    B --> C
-    C --> D --> E
-    E --> F
-    E --> G
-    
-    style Client fill:#e1f5fe
-    style API fill:#f3e5f5
-    style Data fill:#fff3e0
-```
-
-### 🚀 Início Rápido
-
-#### Prerequisites
-
-- Python 3.12+
-- pip (Python package manager)
-
-#### Installation
-
-```bash
-# Clone the repository
-git clone https://github.com/galafis/Event-Planning-System.git
-cd Event-Planning-System
-
-# Create and activate virtual environment
-python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
-
-# Install dependencies
-pip install -r requirements.txt
-```
-
-#### Running
-
-```bash
-# Run the application
-python src/main.py
-```
-
-### 📁 Estrutura do Projeto
-
-```
-Event-Planning-System/
-├── src/          # Source code
-│   ├── models/        # Data models
-│   │   └── user.py
-│   ├── routes/
-│   │   └── user.py
-│   ├── static/
-│   ├── __init__.py
-│   └── main.py
-├── tests/         # Test suite
-│   ├── __init__.py
-│   └── test_main.py
-├── Dockerfile
-├── LICENSE
-├── README.md
-├── analytics.R
-├── app.js
-└── requirements.txt
-```
-
-### 🛠️ Stack Tecnológica
-
-| Tecnologia | Descrição | Papel |
-|------------|-----------|-------|
-| **Python** | Core Language | Primary |
-| **Docker** | Containerization platform | Framework |
-| **Flask** | Lightweight web framework | Framework |
-| **SQLAlchemy** | SQL toolkit and ORM | Framework |
-| HTML | 2 files | Supporting |
-| R | 1 files | Supporting |
-| JavaScript | 1 files | Supporting |
-| CSS | 1 files | Supporting |
-
-### 🤝 Contribuindo
-
-Contribuições são bem-vindas! Sinta-se à vontade para enviar um Pull Request.
-
-### 📄 Licença
-
-Este projeto está licenciado sob a Licença MIT - veja o arquivo [LICENSE](LICENSE) para detalhes.
-
-### 👤 Autor
+### Author
 
 **Gabriel Demetrios Lafis**
 - GitHub: [@galafis](https://github.com/galafis)
 - LinkedIn: [Gabriel Demetrios Lafis](https://linkedin.com/in/gabriel-demetrios-lafis)
+
+### License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
