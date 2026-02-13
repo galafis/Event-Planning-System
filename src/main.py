@@ -3,18 +3,24 @@ from datetime import datetime, timedelta
 import json
 import os
 
-app = Flask(__name__)
-app.secret_key = 'event_planning_secret_key_2024'
+app = Flask(__name__, template_folder='templates')
+app.secret_key = os.environ.get('SECRET_KEY', os.urandom(24))
 
 # In-memory storage for demo purposes
 events = []
 vendors = []
 guests = []
 
+# Module-level ID counters (initialized after sample data)
+_next_event_id = 3
+_next_vendor_id = 4
+_next_guest_id = 3
+_next_task_id = 6
+
 # Sample data initialization
 def initialize_sample_data():
     global events, vendors, guests
-    
+
     # Sample vendors
     vendors.extend([
         {
@@ -48,7 +54,7 @@ def initialize_sample_data():
             'description': 'Luxury event venues in prime locations'
         }
     ])
-    
+
     # Sample events
     events.extend([
         {
@@ -89,7 +95,7 @@ def initialize_sample_data():
             ]
         }
     ])
-    
+
     # Sample guests
     guests.extend([
         {
@@ -125,9 +131,10 @@ def get_events():
 
 @app.route('/api/events', methods=['POST'])
 def create_event():
+    global _next_event_id
     data = request.get_json()
     new_event = {
-        'id': len(events) + 1,
+        'id': _next_event_id,
         'title': data.get('title'),
         'description': data.get('description'),
         'date': data.get('date'),
@@ -141,6 +148,7 @@ def create_event():
         'vendors': [],
         'tasks': []
     }
+    _next_event_id += 1
     events.append(new_event)
     return jsonify(new_event), 201
 
@@ -156,9 +164,13 @@ def update_event(event_id):
     event = next((e for e in events if e['id'] == event_id), None)
     if not event:
         return jsonify({'error': 'Event not found'}), 404
-    
+
     data = request.get_json()
-    event.update(data)
+    allowed_fields = {'title', 'description', 'date', 'time', 'venue',
+                      'budget', 'guest_count', 'status', 'organizer'}
+    for key in allowed_fields:
+        if key in data:
+            event[key] = data[key]
     return jsonify(event)
 
 @app.route('/api/events/<int:event_id>', methods=['DELETE'])
@@ -177,9 +189,10 @@ def get_vendors():
 
 @app.route('/api/vendors', methods=['POST'])
 def create_vendor():
+    global _next_vendor_id
     data = request.get_json()
     new_vendor = {
-        'id': len(vendors) + 1,
+        'id': _next_vendor_id,
         'name': data.get('name'),
         'category': data.get('category'),
         'contact': data.get('contact'),
@@ -188,6 +201,7 @@ def create_vendor():
         'price_range': data.get('price_range'),
         'description': data.get('description')
     }
+    _next_vendor_id += 1
     vendors.append(new_vendor)
     return jsonify(new_vendor), 201
 
@@ -201,9 +215,10 @@ def get_guests():
 
 @app.route('/api/guests', methods=['POST'])
 def create_guest():
+    global _next_guest_id
     data = request.get_json()
     new_guest = {
-        'id': len(guests) + 1,
+        'id': _next_guest_id,
         'name': data.get('name'),
         'email': data.get('email'),
         'phone': data.get('phone'),
@@ -211,6 +226,7 @@ def create_guest():
         'status': 'pending',
         'dietary_restrictions': data.get('dietary_restrictions', 'None')
     }
+    _next_guest_id += 1
     guests.append(new_guest)
     return jsonify(new_guest), 201
 
@@ -219,29 +235,35 @@ def update_guest(guest_id):
     guest = next((g for g in guests if g['id'] == guest_id), None)
     if not guest:
         return jsonify({'error': 'Guest not found'}), 404
-    
+
     data = request.get_json()
-    guest.update(data)
+    allowed_fields = {'name', 'email', 'phone', 'event_id', 'status',
+                      'dietary_restrictions'}
+    for key in allowed_fields:
+        if key in data:
+            guest[key] = data[key]
     return jsonify(guest)
 
 @app.route('/api/events/<int:event_id>/tasks', methods=['POST'])
 def add_task(event_id):
+    global _next_task_id
     event = next((e for e in events if e['id'] == event_id), None)
     if not event:
         return jsonify({'error': 'Event not found'}), 404
-    
+
     data = request.get_json()
     new_task = {
-        'id': len(event.get('tasks', [])) + 1,
+        'id': _next_task_id,
         'title': data.get('title'),
         'completed': False,
         'due_date': data.get('due_date')
     }
-    
+    _next_task_id += 1
+
     if 'tasks' not in event:
         event['tasks'] = []
     event['tasks'].append(new_task)
-    
+
     return jsonify(new_task), 201
 
 @app.route('/api/events/<int:event_id>/tasks/<int:task_id>', methods=['PUT'])
@@ -249,13 +271,16 @@ def update_task(event_id, task_id):
     event = next((e for e in events if e['id'] == event_id), None)
     if not event:
         return jsonify({'error': 'Event not found'}), 404
-    
+
     task = next((t for t in event.get('tasks', []) if t['id'] == task_id), None)
     if not task:
         return jsonify({'error': 'Task not found'}), 404
-    
+
     data = request.get_json()
-    task.update(data)
+    allowed_fields = {'title', 'completed', 'due_date'}
+    for key in allowed_fields:
+        if key in data:
+            task[key] = data[key]
     return jsonify(task)
 
 @app.route('/api/dashboard/stats', methods=['GET'])
@@ -264,13 +289,13 @@ def get_dashboard_stats():
     upcoming_events = len([e for e in events if datetime.strptime(e['date'], '%Y-%m-%d').date() >= datetime.now().date()])
     total_guests = len(guests)
     confirmed_guests = len([g for g in guests if g['status'] == 'confirmed'])
-    
+
     # Calculate total budget
     total_budget = sum(e.get('budget', 0) for e in events)
-    
+
     # Recent events
     recent_events = sorted(events, key=lambda x: x['created_at'], reverse=True)[:5]
-    
+
     # Upcoming tasks
     upcoming_tasks = []
     for event in events:
@@ -281,9 +306,9 @@ def get_dashboard_stats():
                     'task_title': task['title'],
                     'due_date': task['due_date']
                 })
-    
+
     upcoming_tasks = sorted(upcoming_tasks, key=lambda x: x['due_date'])[:5]
-    
+
     return jsonify({
         'total_events': total_events,
         'upcoming_events': upcoming_events,
@@ -296,4 +321,3 @@ def get_dashboard_stats():
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5000)
-
