@@ -1,81 +1,374 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Event Planning System</title>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Event Planning Workspace</title>
     <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f5f5f5; color: #333; }
-        header { background: #2c3e50; color: white; padding: 1.5rem 2rem; }
-        header h1 { font-size: 1.5rem; }
-        .container { max-width: 1100px; margin: 2rem auto; padding: 0 1rem; }
-        .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 2rem; }
-        .stat-card { background: white; border-radius: 8px; padding: 1.5rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
-        .stat-card h3 { font-size: 0.85rem; color: #888; text-transform: uppercase; margin-bottom: 0.5rem; }
-        .stat-card .value { font-size: 2rem; font-weight: 700; color: #2c3e50; }
-        .section { background: white; border-radius: 8px; padding: 1.5rem; margin-bottom: 1.5rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
-        .section h2 { margin-bottom: 1rem; font-size: 1.2rem; }
-        table { width: 100%; border-collapse: collapse; }
-        th, td { text-align: left; padding: 0.75rem; border-bottom: 1px solid #eee; }
-        th { color: #888; font-size: 0.85rem; text-transform: uppercase; }
-        .badge { display: inline-block; padding: 0.25rem 0.75rem; border-radius: 12px; font-size: 0.8rem; font-weight: 600; }
-        .badge-planning { background: #fff3cd; color: #856404; }
-        .badge-confirmed { background: #d4edda; color: #155724; }
-        .badge-completed { background: #cce5ff; color: #004085; }
-    </style>
-</head>
-<body>
-    <header>
-        <h1>Event Planning System</h1>
-    </header>
-    <div class="container">
-        <div class="stats" id="stats"></div>
-        <div class="section">
-            <h2>Events</h2>
-            <table>
-                <thead><tr><th>Title</th><th>Date</th><th>Venue</th><th>Budget</th><th>Status</th></tr></thead>
-                <tbody id="events-table"></tbody>
-            </table>
-        </div>
-        <div class="section">
-            <h2>Upcoming Tasks</h2>
-            <table>
-                <thead><tr><th>Event</th><th>Task</th><th>Due Date</th></tr></thead>
-                <tbody id="tasks-table"></tbody>
-            </table>
-        </div>
-    </div>
-    <script>
-        async function loadDashboard() {
-            try {
-                const [statsRes, eventsRes] = await Promise.all([
-                    fetch('/api/dashboard/stats'),
-                    fetch('/api/events')
-                ]);
-                const stats = await statsRes.json();
-                const events = await eventsRes.json();
-
-                document.getElementById('stats').innerHTML = [
-                    {label: 'Total Events', value: stats.total_events},
-                    {label: 'Upcoming Events', value: stats.upcoming_events},
-                    {label: 'Total Guests', value: stats.total_guests},
-                    {label: 'Confirmed Guests', value: stats.confirmed_guests},
-                    {label: 'Total Budget', value: '$' + (stats.total_budget || 0).toLocaleString()}
-                ].map(s => `<div class="stat-card"><h3>${s.label}</h3><div class="value">${s.value}</div></div>`).join('');
-
-                document.getElementById('events-table').innerHTML = events.map(e =>
-                    `<tr><td>${e.title}</td><td>${e.date}</td><td>${e.venue || '-'}</td><td>$${(e.budget||0).toLocaleString()}</td><td><span class="badge badge-${e.status}">${e.status}</span></td></tr>`
-                ).join('');
-
-                document.getElementById('tasks-table').innerHTML = (stats.upcoming_tasks || []).map(t =>
-                    `<tr><td>${t.event_title}</td><td>${t.task_title}</td><td>${t.due_date}</td></tr>`
-                ).join('');
-            } catch (err) {
-                console.error('Failed to load dashboard:', err);
-            }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        background: #f3f5f8;
+        color: #182639;
+        font:
+          16px/1.6 system-ui,
+          sans-serif;
+      }
+      main {
+        max-width: 1160px;
+        margin: 0 auto;
+        padding: 36px 24px;
+      }
+      header {
+        display: flex;
+        justify-content: space-between;
+        align-items: start;
+        gap: 24px;
+        margin-bottom: 32px;
+      }
+      h1 {
+        font-size: clamp(28px, 5vw, 48px);
+        line-height: 1.1;
+        margin: 10px 0;
+      }
+      h2 {
+        font-size: 21px;
+        margin: 0 0 18px;
+      }
+      p {
+        color: #526478;
+      }
+      .eyebrow {
+        color: #086b67;
+        font-size: 12px;
+        font-weight: 800;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: 1fr 1.4fr;
+        gap: 24px;
+      }
+      .card {
+        background: white;
+        border: 1px solid #dce3ea;
+        border-radius: 18px;
+        padding: 26px;
+        box-shadow: 0 5px 24px #18263906;
+        margin-bottom: 20px;
+      }
+      label {
+        display: block;
+        font-weight: 600;
+        margin: 12px 0;
+      }
+      input,
+      select,
+      button {
+        font: inherit;
+        border: 1px solid #bac7d4;
+        border-radius: 8px;
+        padding: 11px 14px;
+      }
+      input,
+      select {
+        display: block;
+        width: 100%;
+        background: white;
+        color: #182639;
+        margin-top: 6px;
+      }
+      button {
+        background: #086b67;
+        color: white;
+        cursor: pointer;
+      }
+      button:hover {
+        background: #075450;
+      }
+      button.secondary {
+        background: white;
+        color: #244056;
+      }
+      .row {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+        justify-content: space-between;
+      }
+      .entry {
+        border-top: 1px solid #e0e7ee;
+        padding: 16px 0;
+      }
+      .entry h3 {
+        margin: 0;
+      }
+      .entry small {
+        color: #526478;
+      }
+      #message {
+        min-height: 28px;
+        color: #9d321f;
+        font-weight: 600;
+      }
+      .metrics {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 16px;
+        margin: 24px 0;
+      }
+      .metric {
+        background: #182e43;
+        border-radius: 12px;
+        padding: 18px;
+        color: white;
+      }
+      .metric strong {
+        font-size: 25px;
+        display: block;
+      }
+      a {
+        color: #076964;
+      }
+      :focus-visible {
+        outline: 3px solid #efaa34;
+        outline-offset: 3px;
+      }
+      footer {
+        font-size: 14px;
+        color: #526478;
+        padding-top: 20px;
+      }
+      @media (max-width: 700px) {
+        .grid {
+          grid-template-columns: 1fr;
         }
-        loadDashboard();
+        .metrics {
+          grid-template-columns: 1fr;
+        }
+        header {
+          display: block;
+        }
+        header button {
+          margin-top: 16px;
+        }
+        .card {
+          padding: 20px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <header>
+        <div>
+          <span class="eyebrow">Gabriel Demetrios Lafis · Flask</span>
+          <h1
+            data-en="Event planning workspace"
+            data-pt="Central de planejamento de eventos"
+          ></h1>
+          <p
+            data-en="A working prototype for events, budgets, guests and task follow-up."
+            data-pt="Protótipo funcional para eventos, orçamentos, convidados e acompanhamento de tarefas."
+          ></p>
+        </div>
+        <button id="language" class="secondary" type="button">Português</button>
+      </header>
+      <div class="metrics">
+        <div class="metric">
+          <span data-en="Events" data-pt="Eventos"></span
+          ><strong id="count">—</strong>
+        </div>
+        <div class="metric">
+          <span
+            data-en="Planned budget · USD"
+            data-pt="Orçamento planejado · USD"
+          ></span
+          ><strong id="budget">—</strong>
+        </div>
+        <div class="metric">
+          <span
+            data-en="Registered guests"
+            data-pt="Convidados cadastrados"
+          ></span
+          ><strong id="guests">—</strong>
+        </div>
+      </div>
+      <div class="grid">
+        <section class="card">
+          <h2 data-en="Plan an event" data-pt="Planejar um evento"></h2>
+          <form id="event-form">
+            <label
+              ><span data-en="Event title" data-pt="Título do evento"></span
+              ><input name="title" required maxlength="120" /></label
+            ><label
+              ><span data-en="Date" data-pt="Data"></span
+              ><input type="date" name="date" required /></label
+            ><label
+              ><span data-en="Budget · USD" data-pt="Orçamento · USD"></span
+              ><input
+                type="number"
+                min="0"
+                step="0.01"
+                max="1000000000000"
+                name="budget"
+                value="1000"
+                required /></label
+            ><label
+              ><span data-en="Venue" data-pt="Local"></span
+              ><input name="venue" required maxlength="200" /></label
+            ><button data-en="Create event" data-pt="Criar evento"></button>
+          </form>
+          <p id="message" role="status" aria-live="polite"></p>
+        </section>
+        <section class="card">
+          <h2 data-en="Events and tasks" data-pt="Eventos e tarefas"></h2>
+          <div id="events"></div>
+        </section>
+      </div>
+      <footer>
+        <p
+          data-en="Synthetic examples. Data stays in server memory and resets on restart. This local prototype has no account system."
+          data-pt="Exemplos fictícios. Os dados ficam na memória do servidor e são reiniciados ao reiniciar a aplicação. Este protótipo local não possui contas de usuário."
+        ></p>
+        <a href="https://github.com/galafis/Event-Planning-System"
+          >GitHub · EN / PT</a
+        >
+      </footer>
+    </main>
+    <script>
+      let lang = "en",
+        cached = [];
+      const text = (en, pt) => (lang === "en" ? en : pt);
+      function translate() {
+        document.documentElement.lang = lang === "en" ? "en" : "pt-BR";
+        document
+          .querySelectorAll("[data-en]")
+          .forEach((el) => (el.textContent = el.dataset[lang]));
+        document.querySelector("#language").textContent =
+          lang === "en" ? "Português" : "English";
+        render();
+      }
+      async function api(path, options = {}) {
+        const response = await fetch(path, {
+          ...options,
+          headers: { "Content-Type": "application/json" },
+        });
+        const data = await response.json();
+        if (!response.ok)
+          throw Error(data.error || "Request failed / Falha na requisição");
+        return data;
+      }
+      function report(error) {
+        document.querySelector("#message").textContent = error.message;
+      }
+      async function load() {
+        try {
+          const [events, stats] = await Promise.all([
+            api("/api/events"),
+            api("/api/dashboard/stats"),
+          ]);
+          cached = events;
+          document.querySelector("#count").textContent = stats.total_events;
+          document.querySelector("#guests").textContent = stats.total_guests;
+          document.querySelector("#budget").textContent = new Intl.NumberFormat(
+            lang === "en" ? "en-US" : "pt-BR",
+            { style: "currency", currency: "USD" },
+          ).format(stats.total_budget);
+          render();
+        } catch (error) {
+          report(error);
+        }
+      }
+      function render() {
+        const list = document.querySelector("#events");
+        list.replaceChildren();
+        if (!cached.length) {
+          list.textContent = text("No events yet.", "Nenhum evento ainda.");
+          return;
+        }
+        for (const event of cached) {
+          const entry = document.createElement("article");
+          entry.className = "entry";
+          const row = document.createElement("div");
+          row.className = "row";
+          const title = document.createElement("h3");
+          title.textContent = event.title;
+          const remove = document.createElement("button");
+          remove.type = "button";
+          remove.className = "secondary";
+          remove.textContent = text("Delete", "Excluir");
+          remove.setAttribute(
+            "aria-label",
+            text("Delete ", "Excluir ") + event.title,
+          );
+          remove.onclick = async () => {
+            try {
+              await api("/api/events/" + event.id, { method: "DELETE" });
+              await load();
+            } catch (error) {
+              report(error);
+            }
+          };
+          row.append(title, remove);
+          const details = document.createElement("p");
+          details.textContent =
+            event.date +
+            " · " +
+            (event.venue || text("Venue pending", "Local pendente"));
+          entry.append(row, details);
+          for (const task of event.tasks) {
+            const button = document.createElement("button");
+            button.type = "button";
+            button.className = "secondary";
+            button.style.margin = "4px";
+            button.textContent = (task.completed ? "✓ " : "○ ") + task.title;
+            button.setAttribute("aria-pressed", String(task.completed));
+            button.onclick = async () => {
+              try {
+                await api("/api/events/" + event.id + "/tasks/" + task.id, {
+                  method: "PUT",
+                  body: JSON.stringify({ completed: !task.completed }),
+                });
+                await load();
+              } catch (error) {
+                report(error);
+              }
+            };
+            entry.append(button);
+          }
+          list.append(entry);
+        }
+      }
+      document.querySelector("#language").onclick = () => {
+        lang = lang === "en" ? "pt" : "en";
+        translate();
+        load();
+      };
+      document.querySelector("#event-form").onsubmit = async (event) => {
+        event.preventDefault();
+        const data = Object.fromEntries(new FormData(event.target));
+        data.budget = Number(data.budget);
+        try {
+          await api("/api/events", {
+            method: "POST",
+            body: JSON.stringify(data),
+          });
+          document.querySelector("#message").textContent = text(
+            "Event created.",
+            "Evento criado.",
+          );
+          event.target.reset();
+          await load();
+        } catch (error) {
+          report(error);
+        }
+      };
+      translate();
+      load();
     </script>
-</body>
+  </body>
 </html>

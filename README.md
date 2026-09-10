@@ -1,223 +1,115 @@
-# Event Planning System
+# Event Planning Workspace
 
-![Python](https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white)
-![HTML5](https://img.shields.io/badge/HTML5-E34F26?style=for-the-badge&logo=html5&logoColor=white)
-![Flask](https://img.shields.io/badge/Flask-000000?style=for-the-badge&logo=flask&logoColor=white)
-![Docker](https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white)
-![pytest](https://img.shields.io/badge/pytest-0A9EDC?style=for-the-badge&logo=pytest&logoColor=white)
-![License-MIT](https://img.shields.io/badge/License--MIT-yellow?style=for-the-badge)
+### Central de Planejamento de Eventos
 
+[![Validation](https://github.com/galafis/Event-Planning-System/actions/workflows/ci.yml/badge.svg)](https://github.com/galafis/Event-Planning-System/actions/workflows/ci.yml)
+[English](#english) · [Português](#portugues) · [Examples / Exemplos](examples/review_demo.py) · [Validation / Validação](docs/VALIDATION.md)
 
-[Portugues](#portugues) | [English](#english)
+**Web applications / Aplicações web** · Working prototype / Protótipo funcional · Gabriel Demetrios Lafis
 
----
-
-## Portugues
-
-### Visao Geral
-
-API REST para planejamento de eventos construida com Flask. Oferece CRUD completo para eventos, fornecedores, convidados e tarefas, com dados de exemplo incluidos para demonstracao.
-
-**Nota:** Os dados sao armazenados em memoria. Todos os dados sao perdidos ao reiniciar o servidor.
-
-### Arquitetura
-
-```mermaid
-graph LR
-    Client["Cliente HTTP"] --> Flask["Flask API (src/main.py)"]
-    Flask --> Storage["Armazenamento em Memoria"]
-    Storage --> Events["Eventos"]
-    Storage --> Vendors["Fornecedores"]
-    Storage --> Guests["Convidados"]
-    Storage --> Tasks["Tarefas"]
-```
-
-### Funcionalidades
-
-- CRUD de eventos (titulo, data, local, orcamento, status)
-- CRUD de fornecedores com filtro por categoria
-- CRUD de convidados com filtro por evento
-- Tarefas vinculadas a eventos
-- Dashboard com estatisticas (total de eventos, convidados, orcamento)
-- Dados de exemplo pre-carregados
-
-### Inicio Rapido
-
-```bash
-# Clonar o repositorio
-git clone https://github.com/galafis/Event-Planning-System.git
-cd Event-Planning-System
-
-# Criar ambiente virtual
-python -m venv venv
-source venv/bin/activate  # Windows: venv\Scripts\activate
-
-# Instalar dependencias
-pip install -r requirements.txt
-
-# Executar a aplicacao
-python src/main.py
-```
-
-O servidor inicia em `http://localhost:5000`.
-
-### Endpoints da API
-
-| Metodo | Rota | Descricao |
-|--------|------|-----------|
-| GET | `/api/events` | Listar eventos |
-| POST | `/api/events` | Criar evento |
-| GET | `/api/events/<id>` | Obter evento |
-| PUT | `/api/events/<id>` | Atualizar evento |
-| DELETE | `/api/events/<id>` | Remover evento |
-| GET | `/api/vendors` | Listar fornecedores |
-| POST | `/api/vendors` | Criar fornecedor |
-| GET | `/api/guests` | Listar convidados |
-| POST | `/api/guests` | Criar convidado |
-| PUT | `/api/guests/<id>` | Atualizar convidado |
-| POST | `/api/events/<id>/tasks` | Adicionar tarefa |
-| PUT | `/api/events/<id>/tasks/<id>` | Atualizar tarefa |
-| GET | `/api/dashboard/stats` | Estatisticas do dashboard |
-
-### Estrutura do Projeto
-
-```
-Event-Planning-System/
-├── src/
-│   ├── main.py           # Aplicacao Flask e rotas da API
-│   ├── templates/
-│   │   └── index.html    # Dashboard web
-│   └── __init__.py
-├── tests/
-│   ├── test_main.py      # Testes com Flask test_client
-│   └── __init__.py
-├── Dockerfile
-├── requirements.txt
-├── LICENSE
-└── README.md
-```
-
-### Testes
-
-```bash
-pytest tests/ -v
-```
-
-### Docker
-
-```bash
-docker build -t event-planning-system .
-docker run -p 5000:5000 event-planning-system
-```
-
----
+<a id="english"></a>
 
 ## English
 
-### Overview
+A Flask application for creating events, tracking budgets and guests, and following event tasks through a bilingual browser workspace and JSON API.
 
-REST API for event planning built with Flask. Provides full CRUD for events, vendors, guests, and tasks, with sample data included for demonstration.
+### What works
 
-**Note:** Data is stored in memory. All data is lost when the server restarts.
+- Working landing page with event creation, budget summaries, task completion and deletion.
+- CRUD endpoints for events plus guest, vendor and task operations.
+- Validation happens before mutation; deleting an event also removes its registered guests.
 
-### Architecture
+### Reproducible walkthrough
+
+Requirements: Python 3.12 / Python 3.12.
+
+Run from the repository root. The validation environment installs the components exercised by the tests and documented example; optional integrations may need their separate dependencies.
+
+```sh
+python -m venv .venv
+# Activate .venv for your shell / Ative .venv no seu terminal
+python -m pip install -r requirements-validation.txt
+python -m pytest -q
+python -m examples.review_demo
+```
+
+**Input contract / Contrato de entrada:** JSON objects / objetos JSON; ISO date `YYYY-MM-DD`; nonnegative budget / orçamento não negativo.
+
+**Expected behavior / Comportamento esperado:** The walkthrough creates event 3, adds a task and guest, and verifies 3 events, 3 guests and a total budget of 76500. / O roteiro cria o evento 3, adiciona tarefa e convidado e verifica 3 eventos, 3 convidados e orçamento total de 76500.
+
+### Architecture / Arquitetura
 
 ```mermaid
-graph LR
-    Client["HTTP Client"] --> Flask["Flask API (src/main.py)"]
-    Flask --> Storage["In-Memory Storage"]
-    Storage --> Events["Events"]
-    Storage --> Vendors["Vendors"]
-    Storage --> Guests["Guests"]
-    Storage --> Tasks["Tasks"]
+flowchart LR
+    A["Bilingual browser / Navegador bilíngue"]
+    B["Validated Flask API / API Flask validada"]
+    C["Locked in-memory collections / Coleções em memória com bloqueio"]
+    D["Events guests tasks and summaries / Eventos convidados tarefas e resumos"]
+    A --> B --> C --> D
 ```
 
-### Features
+The main path can be followed in [src/main.py](src/main.py). Examples call the actual implementation and include assertions; they are not pseudocode.
 
-- Event CRUD (title, date, venue, budget, status)
-- Vendor CRUD with category filtering
-- Guest CRUD with event filtering
-- Tasks linked to events
-- Dashboard with statistics (total events, guests, budget)
-- Pre-loaded sample data
+### Scope and assumptions
 
-### Quick Start
+This is a local, single-process prototype with in-memory storage. Restarting clears changes. It has no authentication, persistent database, payments or invitation delivery. Task and event examples are synthetic.
 
-```bash
-# Clone the repository
-git clone https://github.com/galafis/Event-Planning-System.git
-cd Event-Planning-System
+### Changes verified in this review
 
-# Create virtual environment
-python -m venv venv
-source venv/bin/activate  # Windows: venv\Scripts\activate
+Restored the missing landing template; validated dates, quantities, references and statuses; serialized in-process access and fixed orphaned guests after deletion.
 
-# Install dependencies
-pip install -r requirements.txt
+<a id="portugues"></a>
 
-# Run the application
-python src/main.py
+## Português
+
+Aplicação Flask para criar eventos, acompanhar orçamentos e convidados e controlar tarefas por uma interface bilíngue e API JSON.
+
+### Funcionalidades disponíveis
+
+- Página funcional com criação de eventos, resumo de orçamentos, conclusão de tarefas e exclusão.
+- Endpoints CRUD de eventos e operações com convidados, fornecedores e tarefas.
+- A validação ocorre antes de alterar dados; excluir um evento também remove seus convidados cadastrados.
+
+### Execução reproduzível
+
+Use os comandos da seção acima a partir da raiz do repositório. Requisitos: Python 3.12 / Python 3.12. O ambiente de validação instala os componentes exercitados pelos testes e pelo exemplo documentado; integrações opcionais podem exigir dependências próprias.
+
+O fluxo principal está em [src/main.py](src/main.py). Os exemplos usam a implementação real e verificam resultados com asserções; não são pseudocódigo. O diagrama apresenta os mesmos passos nos dois idiomas.
+
+### Escopo e premissas
+
+Protótipo local de processo único com armazenamento em memória. Reiniciar apaga alterações. Não possui autenticação, banco persistente, pagamentos ou envio de convites. Os exemplos de tarefas e eventos são fictícios.
+
+### Melhorias verificadas nesta revisão
+
+Restaurado o template ausente; validados datas, quantidades, referências e status; serializado acesso no processo e corrigidos convidados órfãos após exclusão.
+
+### Run the application / Executar a aplicação
+
+```sh
+python -m src.main
 ```
 
-The server starts at `http://localhost:5000`.
+Open / Abra: http://127.0.0.1:5000.
 
-### API Endpoints
+## Repository guide / Guia do repositório
 
-| Method | Route | Description |
-|--------|-------|-------------|
-| GET | `/api/events` | List events |
-| POST | `/api/events` | Create event |
-| GET | `/api/events/<id>` | Get event |
-| PUT | `/api/events/<id>` | Update event |
-| DELETE | `/api/events/<id>` | Delete event |
-| GET | `/api/vendors` | List vendors |
-| POST | `/api/vendors` | Create vendor |
-| GET | `/api/guests` | List guests |
-| POST | `/api/guests` | Create guest |
-| PUT | `/api/guests/<id>` | Update guest |
-| POST | `/api/events/<id>/tasks` | Add task |
-| PUT | `/api/events/<id>/tasks/<id>` | Update task |
-| GET | `/api/dashboard/stats` | Dashboard statistics |
+| Location / Local                                            | Purpose / Finalidade                                                   |
+| ----------------------------------------------------------- | ---------------------------------------------------------------------- |
+| [Implementation / Implementação](src/main.py)               | Main domain behavior / Comportamento principal do domínio              |
+| [Example / Exemplo](examples/review_demo.py)                | Executable scenario / Cenário executável                               |
+| [Tests / Testes](tests/)                                    | Normal behavior and failure cases / Fluxos válidos e casos de falha    |
+| [Validation notes / Notas de validação](docs/VALIDATION.md) | Corrections, evidence and boundaries / Correções, evidências e limites |
+| [Workflow / Automação](.github/workflows/ci.yml)            | Automated checks / Verificações automatizadas                          |
 
-### Project Structure
+- [Executed example result / Resultado executado do exemplo](examples/expected.json)
 
-```
-Event-Planning-System/
-├── src/
-│   ├── main.py           # Flask app and API routes
-│   ├── templates/
-│   │   └── index.html    # Web dashboard
-│   └── __init__.py
-├── tests/
-│   ├── test_main.py      # Tests with Flask test_client
-│   └── __init__.py
-├── Dockerfile
-├── requirements.txt
-├── LICENSE
-└── README.md
-```
+## Development / Desenvolvimento
 
-### Tests
+EN: When changing behavior, update the contract, the worked example and a regression test together. Keep synthetic fixtures separate from real data. A passing test suite demonstrates the listed software behaviors; it does not certify a deployment or domain outcome.
 
-```bash
-pytest tests/ -v
-```
+PT: Ao alterar comportamento, atualize em conjunto o contrato, o exemplo e um teste de regressão. Separe amostras fictícias de dados reais. Testes aprovados demonstram os comportamentos de software listados; não certificam implantação nem resultado no domínio.
 
-### Docker
+Author / Autor: [Gabriel Demetrios Lafis](https://github.com/galafis) · [Institutional contact / Contato institucional](mailto:gabrieldemetrioslafis@usp.br)
 
-```bash
-docker build -t event-planning-system .
-docker run -p 5000:5000 event-planning-system
-```
-
----
-
-### Author
-
-**Gabriel Demetrios Lafis**
-- GitHub: [@galafis](https://github.com/galafis)
-- LinkedIn: [Gabriel Demetrios Lafis](https://linkedin.com/in/gabriel-demetrios-lafis)
-
-### License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+License / Licença: [repository license](LICENSE).
