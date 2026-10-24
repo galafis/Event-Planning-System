@@ -1,11 +1,28 @@
 # Event Planning Workspace
 
-### Central de Planejamento de Eventos
+**Application architecture · Arquitetura de aplicações**
 
-[![Validation](https://github.com/galafis/Event-Planning-System/actions/workflows/ci.yml/badge.svg)](https://github.com/galafis/Event-Planning-System/actions/workflows/ci.yml)
-[English](#english) · [Português](#portugues) · [Examples / Exemplos](examples/review_demo.py) · [Validation / Validação](docs/VALIDATION.md)
+<p align="center"><img src="assets/project-overview.svg" width="960" alt="Workflow illustration: Event inputs → Tasks and guests → Budget summary"></p>
 
-**Web applications / Aplicações web** · Working prototype / Protótipo funcional · Gabriel Demetrios Lafis
+[![Checks](https://github.com/galafis/Event-Planning-System/actions/workflows/ci.yml/badge.svg)](https://github.com/galafis/Event-Planning-System/actions/workflows/ci.yml)
+[English](#english) · [Português](#portugues) · [Guided tour / Visita guiada](docs/SHOWCASE.md) · [Validation / Validação](docs/VALIDATION.md)
+
+> **EN:** Can budgets, guests and tasks be reviewed in one event workflow?<br>
+> **PT:** É possível revisar orçamento, convidados e tarefas em um fluxo de evento?
+
+## Start here · Comece aqui
+
+| Goal · Objetivo | Where to go · Por onde começar |
+| --- | --- |
+| Understand a real example · Entender um exemplo concreto | [Walkthrough / Roteiro](examples/review_demo.py) |
+| Reproduce and compare · Reproduzir e comparar | [Evidence tour / Visita às evidências](docs/SHOWCASE.md) |
+| Inspect the checks · Inspecionar as verificações | [Validation record / Registro de validação](docs/VALIDATION.md) · [CI](https://github.com/galafis/Event-Planning-System/actions/workflows/ci.yml) |
+
+**Example result · Resultado do exemplo:** The walkthrough creates event 3, adds a task and guest, and verifies 3 events, 3 guests and a total budget of 76500. / O roteiro cria o evento 3, adiciona tarefa e convidado e verifica 3 eventos, 3 convidados e orçamento total de 76500.
+
+**Try a comparison · Experimente uma comparação**<br>
+**EN:** Create the example event, add a guest and task, then inspect the budget summary and API response.<br>
+**PT:** Crie o evento do exemplo, adicione convidado e tarefa e inspecione o resumo de orçamento e a resposta da API.
 
 <a id="english"></a>
 
